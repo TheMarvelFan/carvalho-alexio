@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Scraper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        .product {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Amazon Scraper</h1>
+    <label for="keyword"></label><input type="text" id="keyword" placeholder="Enter search keyword">
+    <button id="searchBtn">Search</button>
+    <div id="results"></div>
+</div>
+
+<script>
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+        const keyword = document.getElementById('keyword').value;
+        if (!keyword || !keyword.replace(/\s/g, '').length) {
+            alert('Please enter a keyword');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/api/scrape?keyword=${keyword}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const products = await response.json();
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'product';
+                productDiv.innerHTML = `
+                    <h2>${product.title}</h2>
+                    <p>Rating: ${product.rating}</p>
+                    <p>Reviews: ${product.reviewCount}</p>
+                    <img src="${product.imageUrl}" alt="${product.title}">
+                `;
+                resultsDiv.appendChild(productDiv);
+            });
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+</script>
+
+</body>
+</html>
